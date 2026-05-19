@@ -618,10 +618,8 @@ pytest tests/ -v --cov=app --cov-report=html
 
 | Name | Role | Contact |
 |---|---|---|
-| _Add your name_ | Project Lead / ML Engineer | _email_ |
-| _Add team member_ | Backend + Agent Engineer | _email_ |
-| _Add team member_ | Data Engineer | _email_ |
-| _Add team member_ | Frontend Engineer | _email_ |
+| _Olayinka Akanji_ | Project Lead / ML Engineer
+| _Micheal Tunwase_ | Full Stack Engineer
 
 ---
 
