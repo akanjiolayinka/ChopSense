@@ -29,11 +29,12 @@ const QUICK_ACTIONS = [
 const RECIPES = ["Jollof Rice", "Beef Suya", "Vegan Egusi", "Plantain Frittata", "Pounded Yam", "Efo Riro"];
 
 // Recipe Generator Component
-function RecipeGenerator({ callAI, preferences }) {
+function RecipeGenerator({ callAI, preferences, setActiveTab }) {
   const [recipeIdx, setRecipeIdx] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [recipeContent, setRecipeContent] = useState(null);
   const [selectedRecipe, setSelectedRecipe] = useState("");
+  const [customRecipe, setCustomRecipe] = useState("");
 
   const handleGenerate = async (recipeName) => {
     if (isGenerating) return;
@@ -66,6 +67,14 @@ Format in markdown with clear sections.`;
     } else {
       setRecipeIdx((prev) => (prev + 1) % RECIPES.length);
       handleGenerate(RECIPES[recipeIdx]);
+    }
+  };
+
+  const handleCustomSubmit = (e) => {
+    e.preventDefault();
+    if (customRecipe.trim()) {
+      handleGenerate(customRecipe);
+      setCustomRecipe("");
     }
   };
 
@@ -111,6 +120,29 @@ Format in markdown with clear sections.`;
           ))}
         </div>
 
+        {/* Custom Recipe Input */}
+        <form onSubmit={handleCustomSubmit} className="mb-6">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={customRecipe}
+              onChange={(e) => setCustomRecipe(e.target.value)}
+              placeholder="Or type any Nigerian dish name..."
+              className="flex-1 bg-navy border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/50"
+              disabled={isGenerating}
+            />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              disabled={!customRecipe.trim() || isGenerating}
+              className="px-6 py-3 rounded-xl bg-gold text-navy font-bold disabled:opacity-50 disabled:hover:scale-100 transition-all"
+            >
+              Generate
+            </motion.button>
+          </div>
+        </form>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,6 +156,26 @@ Format in markdown with clear sections.`;
               <div className="text-sm text-white/60">ChopSense AI</div>
               <div className="font-semibold">Recipe Generator</div>
             </div>
+          </div>
+
+          {/* Quick Navigation */}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab('macros')}
+              className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 hover:border-forest/50 hover:text-forest transition-all"
+            >
+              Track Macros →
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab('dietary')}
+              className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 hover:border-green-400/50 hover:text-green-400 transition-all"
+            >
+              Dietary Adapt →
+            </motion.button>
           </div>
 
           <AnimatePresence mode="wait">
@@ -186,9 +238,11 @@ Format in markdown with clear sections.`;
 }
 
 // Macro Tracker Component
-function MacroTracker() {
+function MacroTracker({ callAI, preferences, setActiveTab }) {
   const [selectedFood, setSelectedFood] = useState("");
   const [macros, setMacros] = useState(null);
+  const [customFood, setCustomFood] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const FOODS = [
     { name: "Jollof Rice (1 plate)", calories: 350, protein: 12, carbs: 65, fat: 8, fiber: 3 },
@@ -218,6 +272,65 @@ function MacroTracker() {
     if (food) {
       setMacros(food);
     }
+  };
+
+  const handleCustomFood = async (e) => {
+    e.preventDefault();
+    if (!customFood.trim() || isGenerating) return;
+
+    setIsGenerating(true);
+
+    try {
+      const systemPrompt = `You are ChopSense, a Nigerian food AI that provides nutritional information.
+Estimate the nutritional values for ${customFood} (standard serving size).
+Provide the following values in a JSON format:
+{
+  "calories": number,
+  "protein": number,
+  "carbs": number,
+  "fat": number,
+  "fiber": number
+}
+
+Consider typical Nigerian preparation methods. Return ONLY the JSON, no other text.`;
+
+      const response = await callAI(`Get nutritional info for ${customFood}`, systemPrompt);
+      
+      try {
+        const parsed = JSON.parse(response);
+        setMacros({
+          name: customFood,
+          calories: parsed.calories,
+          protein: parsed.protein,
+          carbs: parsed.carbs,
+          fat: parsed.fat,
+          fiber: parsed.fiber
+        });
+      } catch (parseError) {
+        // Fallback if JSON parsing fails
+        setMacros({
+          name: customFood,
+          calories: 300,
+          protein: 15,
+          carbs: 40,
+          fat: 12,
+          fiber: 4
+        });
+      }
+    } catch (error) {
+      console.error("Error generating macros:", error);
+      setMacros({
+        name: customFood,
+        calories: 300,
+        protein: 15,
+        carbs: 40,
+        fat: 12,
+        fiber: 4
+      });
+    }
+
+    setIsGenerating(false);
+    setCustomFood("");
   };
 
   return (
@@ -259,6 +372,30 @@ function MacroTracker() {
                 Calculate Macros
               </motion.button>
             </div>
+
+            {/* Custom Food Input */}
+            <form onSubmit={handleCustomFood} className="mt-4 pt-4 border-t border-white/10">
+              <label className="text-sm text-white/60 mb-2 block">Or track custom dish with AI</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customFood}
+                  onChange={(e) => setCustomFood(e.target.value)}
+                  placeholder="Type any Nigerian dish..."
+                  className="flex-1 bg-navy border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-gold/50"
+                  disabled={isGenerating}
+                />
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  disabled={!customFood.trim() || isGenerating}
+                  className="px-4 py-2 rounded-xl bg-forest text-white font-bold disabled:opacity-50 disabled:hover:scale-100 transition-all"
+                >
+                  {isGenerating ? '...' : 'AI'}
+                </motion.button>
+              </div>
+            </form>
           </motion.div>
 
           {/* Macro Display */}
@@ -269,7 +406,27 @@ function MacroTracker() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="lg:col-span-2 glass-panel rounded-3xl p-6 border border-white/10"
               >
-                <h3 className="font-bold mb-6">{macros.name}</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-bold">{macros.name}</h3>
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setActiveTab('recipes')}
+                      className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 hover:border-gold/50 hover:text-gold transition-all"
+                    >
+                      Get Recipe →
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setActiveTab('dietary')}
+                      className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 hover:border-green-400/50 hover:text-green-400 transition-all"
+                    >
+                      Dietary Adapt →
+                    </motion.button>
+                  </div>
+                </div>
                 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                   <div className="bg-white/5 p-4 rounded-xl text-center">
@@ -395,20 +552,22 @@ function MacroTracker() {
 }
 
 // Dietary Adaptations Component
-function DietaryAdaptations({ callAI, preferences }) {
+function DietaryAdaptations({ callAI, preferences, setActiveTab }) {
   const [selectedDish, setSelectedDish] = useState("");
+  const [customDish, setCustomDish] = useState("");
   const [restriction, setRestriction] = useState("");
   const [adaptation, setAdaptation] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAdapt = async () => {
-    if (!selectedDish || !restriction) return;
+    const dishToAdapt = customDish || selectedDish;
+    if (!dishToAdapt || !restriction) return;
 
     setIsGenerating(true);
 
     try {
       const systemPrompt = `You are ChopSense, a Nigerian food AI that provides dietary adaptations for Nigerian dishes.
-Generate a detailed dietary adaptation for ${selectedDish} to make it ${restriction}.
+Generate a detailed dietary adaptation for ${dishToAdapt} to make it ${restriction}.
 Consider the user's other preferences: spice level ${preferences.spiceLevel || 'Medium'}, meal size ${preferences.mealSize || 'Regular'}.
 
 Provide:
@@ -420,7 +579,7 @@ Provide:
 
 Format in markdown with clear sections.`;
 
-      const response = await callAI(`Generate a ${restriction} adaptation for ${selectedDish}`, systemPrompt);
+      const response = await callAI(`Generate a ${restriction} adaptation for ${dishToAdapt}`, systemPrompt);
       setAdaptation({ content: response, isAI: true });
     } catch (error) {
       console.error("Error generating adaptation:", error);
@@ -449,7 +608,7 @@ Format in markdown with clear sections.`;
                 <label className="text-sm text-white/60 mb-2 block">Select Dish</label>
                 <select
                   value={selectedDish}
-                  onChange={(e) => setSelectedDish(e.target.value)}
+                  onChange={(e) => { setSelectedDish(e.target.value); setCustomDish(""); }}
                   className="w-full bg-navy border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-gold/50 text-white"
                 >
                   <option value="">Choose a dish...</option>
@@ -458,6 +617,16 @@ Format in markdown with clear sections.`;
                   <option value="amala">Amala</option>
                   <option value="suya">Suya</option>
                 </select>
+              </div>
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <label className="text-sm text-white/60 mb-2 block">Or type custom dish</label>
+                <input
+                  type="text"
+                  value={customDish}
+                  onChange={(e) => { setCustomDish(e.target.value); setSelectedDish(""); }}
+                  placeholder="Type any Nigerian dish..."
+                  className="w-full bg-navy border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-gold/50 text-white"
+                />
               </div>
               <div>
                 <label className="text-sm text-white/60 mb-2 block">Dietary Restriction</label>
@@ -491,13 +660,33 @@ Format in markdown with clear sections.`;
               animate={{ opacity: 1, scale: 1 }}
               className="glass-panel rounded-3xl p-6 border border-white/10"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-full bg-green-400/20 flex items-center justify-center">
-                  <Leaf size={18} className="text-green-400" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-green-400/20 flex items-center justify-center">
+                    <Leaf size={18} className="text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-white/60">AI-Generated Adaptation</div>
+                    <div className="text-sm font-medium">{customDish || selectedDish} → {restriction}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-white/60">AI-Generated Adaptation</div>
-                  <div className="text-sm font-medium">{selectedDish} → {restriction}</div>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab('recipes')}
+                    className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 hover:border-gold/50 hover:text-gold transition-all"
+                  >
+                    Get Recipe →
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setActiveTab('macros')}
+                    className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 hover:border-forest/50 hover:text-forest transition-all"
+                  >
+                    Track Macros →
+                  </motion.button>
                 </div>
               </div>
 
@@ -603,15 +792,15 @@ export default function AppDashboard() {
 
   const renderContent = () => {
     if (activeTab === 'recipes') {
-      return <RecipeGenerator callAI={callAI} preferences={preferences} />;
+      return <RecipeGenerator callAI={callAI} preferences={preferences} setActiveTab={setActiveTab} />;
     }
 
     if (activeTab === 'macros') {
-      return <MacroTracker />;
+      return <MacroTracker callAI={callAI} preferences={preferences} setActiveTab={setActiveTab} />;
     }
 
     if (activeTab === 'dietary') {
-      return <DietaryAdaptations callAI={callAI} preferences={preferences} />;
+      return <DietaryAdaptations callAI={callAI} preferences={preferences} setActiveTab={setActiveTab} />;
     }
 
     if (activeTab === 'explore') {
