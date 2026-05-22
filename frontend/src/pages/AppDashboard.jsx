@@ -47,6 +47,12 @@ Generate a complete recipe for ${recipeName} considering the user's preferences:
 - Dietary restrictions: ${Object.entries(preferences.dietary || {}).filter(([_, v]) => v).map(([k]) => k).join(', ') || 'None'}
 - Spice tolerance: ${preferences.spiceLevel || 'Medium'}
 - Meal size: ${preferences.mealSize || 'Regular'}
+- Language Style: ${preferences.language || 'Heavy Pidgin / Street'}
+
+CRITICAL INSTRUCTION: Reply ENTIRELY in the requested language style (${preferences.language || 'Heavy Pidgin / Street'}). 
+- If Yoruba, Igbo, or Hausa is selected, mix your English/Pidgin heavily with that language, using local slang and cultural warmth.
+- If Heavy Pidgin, use street-level Lagos Pidgin.
+- If Formal English, be polite but maintain Nigerian cultural context.
 
 Include: ingredients with Nigerian measurements, step-by-step instructions, prep time, cooking time, and nutritional info.
 Format in markdown with clear sections.`;
@@ -569,6 +575,12 @@ function DietaryAdaptations({ callAI, preferences, setActiveTab }) {
       const systemPrompt = `You are ChopSense, a Nigerian food AI that provides dietary adaptations for Nigerian dishes.
 Generate a detailed dietary adaptation for ${dishToAdapt} to make it ${restriction}.
 Consider the user's other preferences: spice level ${preferences.spiceLevel || 'Medium'}, meal size ${preferences.mealSize || 'Regular'}.
+Language Style: ${preferences.language || 'Heavy Pidgin / Street'}
+
+CRITICAL INSTRUCTION: Reply ENTIRELY in the requested language style (${preferences.language || 'Heavy Pidgin / Street'}). 
+- If Yoruba, Igbo, or Hausa is selected, mix your English/Pidgin heavily with that language, using local slang and cultural warmth.
+- If Heavy Pidgin, use street-level Lagos Pidgin.
+- If Formal English, be polite but maintain Nigerian cultural context.
 
 Provide:
 1. The adapted dish name
@@ -1406,10 +1418,10 @@ export default function AppDashboard() {
   };
 
   return (
-    <div className={`min-h-screen ${getThemeClasses()} text-white flex flex-col md:flex overflow-hidden transition-colors duration-500`}>
+    <div className={`h-screen ${getThemeClasses()} text-white flex flex-col md:flex-row overflow-hidden transition-colors duration-500`}>
       
       {/* Sidebar */}
-      <aside className="w-64 border-r border-white/10 bg-navy/50 backdrop-blur-xl flex flex-col justify-between hidden md:flex z-20">
+      <aside className="w-64 border-r border-white/10 bg-navy/50 backdrop-blur-xl flex flex-col justify-between hidden md:flex z-20 shrink-0">
         <div className="p-6">
           <Link to="/" className="flex items-center gap-3 mb-12">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-forest flex items-center justify-center text-navyDark">
@@ -1455,7 +1467,7 @@ export default function AppDashboard() {
       </aside>
 
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between p-4 border-b border-white/10 bg-navy/50 backdrop-blur-xl z-20">
+      <header className="md:hidden flex items-center justify-between p-4 border-b border-white/10 bg-navy/80 backdrop-blur-xl z-20 shrink-0">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-forest flex items-center justify-center text-navyDark">
             <ChefHat size={16} strokeWidth={2.5} />
@@ -1471,31 +1483,35 @@ export default function AppDashboard() {
         </motion.button>
       </header>
 
-      {/* Mobile Navigation */}
-      <nav className="md:hidden flex items-center justify-around p-4 border-b border-white/10 bg-navy/50 backdrop-blur-xl overflow-x-auto no-scrollbar">
-        {SIDEBAR_ITEMS.map((item) => (
-          <motion.button
-            key={item.id}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
-              "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors shrink-0",
-              activeTab === item.id
-                ? "bg-gold text-navy"
-                : "text-white/60"
-            )}
-          >
-            <item.icon size={20} />
-            <span className="text-xs">{item.label}</span>
-          </motion.button>
-        ))}
-      </nav>
-
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
-        {renderContent()}
+      <main className="flex-1 flex flex-col min-h-0 w-full md:flex-row relative z-10 overflow-hidden pb-16 md:pb-0">
+        <div className="flex-1 h-full overflow-hidden w-full flex">
+          {renderContent()}
+        </div>
       </main>
+
+      {/* Bottom Navigation for Mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 z-50 bg-navy/90 backdrop-blur-xl">
+        <div className="flex items-center justify-around px-2 py-2">
+          {SIDEBAR_ITEMS.slice(0, 5).map((item) => (
+            <motion.button
+              key={item.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveTab(item.id)}
+              className={cn(
+                "flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-colors min-w-[4rem]",
+                activeTab === item.id
+                  ? "text-gold bg-gold/10"
+                  : "text-white/60 hover:text-white"
+              )}
+            >
+              <item.icon size={20} className="mb-1" />
+              <span className="text-[10px] font-medium hidden sm:block leading-none">{item.label}</span>
+            </motion.button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChefHat, Twitter, Github, Mail } from 'lucide-react';
+import { ChefHat, X, Code, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -16,10 +16,10 @@ export default function Footer() {
 
           <div className="flex items-center gap-6">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-gold transition-colors">
-              <Twitter size={20} />
+              <X size={20} />
             </a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-gold transition-colors">
-              <Github size={20} />
+              <Code size={20} />
             </a>
             <a href="mailto:hello@chopsense.com" className="text-white/60 hover:text-gold transition-colors">
               <Mail size={20} />

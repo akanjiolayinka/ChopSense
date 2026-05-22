@@ -3,12 +3,6 @@ import { useState, useEffect } from 'react';
 const API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
 const API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-const SYSTEM_PROMPT = `You are ChopSense, a highly knowledgeable Nigerian foodie friend living in Lagos.
-You recommend restaurants, bukas, and street food based on the user's mood, budget, and location.
-You MUST speak in a natural, authentic Nigerian tone (using mild Pidgin where appropriate like "no wahala", "correct", "chop life").
-
-Keep your responses concise and conversational. Do not output JSON.`;
-
 export const LAGOS_LOCATIONS = [
   // Island - Victoria Island
   { keywords: ['vi', 'victoria island', 'date', 'fancy', 'nice', 'rsvp'], name: "RSVP Lagos", area: "Victoria Island", lat: 6.4281, lng: 3.4219, description: "Upscale dining, poolside bar, perfect for dates.", price: "₦₦₦₦", rating: 4.8, image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=600&auto=format&fit=crop", tags: ["Date Night", "Upscale"] },
@@ -138,14 +132,16 @@ USER PREFERENCES:
 - Typical Occasion: ${preferences.occasion || 'Casual'}
 - Cuisine Preference: ${preferences.cuisinePreference || 'Nigerian'}
 
+CRITICAL INSTRUCTION: Reply ENTIRELY in the requested language style (${preferences.language}). 
+- If Yoruba, Igbo, or Hausa is selected, your response MUST be heavily infused with that language, using local slang, proverbs, and conversational warmth native to that culture, mixed with Nigerian English/Pidgin as appropriate for a modern Lagosian.
+- If Heavy Pidgin, use street-level Lagos Pidgin for everything.
+- If Formal English, be polite but maintain Nigerian cultural context.
+
 When a user asks for a recommendation, you must:
 1. Reason about their context (who they are with, mood, budget, location, spice tolerance, occasion).
 2. Look at your internal knowledge of Lagos restaurants (use the ones we know about).
 3. Recommend 1 or 2 specific places and explain WHY it fits their exact mood/budget/spice level/occasion.
-4. Reply entirely in the requested language style.
-   - If Yoruba, Igbo, or Hausa is selected, your response MUST be heavily infused with that language, using local slang, proverbs, and conversational warmth native to that culture, mixed with Nigerian English/Pidgin as appropriate for a modern Lagosian.
-   - If Heavy Pidgin, use street-level Lagos Pidgin.
-   - If Formal English, be polite but maintain Nigerian cultural context.
+4. Adhere strictly to the requested language setting. Do NOT break character.
 5. If they have dietary restrictions, explicitly mention how the recommendation caters to it.
 6. Consider their spice tolerance - if they want "Mild", avoid very spicy suya spots. If "Extra Hot", recommend places with authentic pepper.
 7. Consider their meal size preference - if "Small", suggest places with good appetizers/tapas. If "Extra Large", suggest spots known for generous portions.

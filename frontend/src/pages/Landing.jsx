@@ -10,7 +10,7 @@ import Pricing from '../components/Pricing';
 import CTA from '../components/CTA';
 import Footer from '../components/Footer';
 import UserWorkflows from '../components/UserWorkflows';
-import Lenis from '@studio-freight/lenis';
+import Lenis from 'lenis';
 
 export default function Landing() {
   useEffect(() => {

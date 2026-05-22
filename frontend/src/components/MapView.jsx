@@ -19,13 +19,19 @@ export default function MapView({ locations, userLocation }) {
       attribution: '© OpenStreetMap contributors'
     }).addTo(mapInstanceRef.current);
 
-    // Fix for default Leaflet icon
-    delete L.Icon.Default.prototype._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-      iconUrl: require('leaflet/dist/images/marker-icon.png'),
-      shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-      shadowRetinaUrl: require('leaflet/dist/images/marker-shadow-2x.png'),
+    // Use custom marker icons to avoid missing image issues
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="background-color: #d4a276; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
+    });
+
+    const userIcon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="background-color: #10b981; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
     });
 
     return () => {
@@ -47,6 +53,20 @@ export default function MapView({ locations, userLocation }) {
       routeRef.current = null;
     }
 
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="background-color: #d4a276; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
+    });
+
+    const userIcon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="background-color: #10b981; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+
     // Add user location marker
     if (userLocation) {
       const userMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
@@ -62,7 +82,7 @@ export default function MapView({ locations, userLocation }) {
 
     // Add location markers
     locations.forEach((loc, idx) => {
-      const marker = L.marker([loc.lat, loc.lng])
+      const marker = L.marker([loc.lat, loc.lng], { icon: customIcon })
         .addTo(mapInstanceRef.current)
         .bindPopup(`
           <div class="p-2">
