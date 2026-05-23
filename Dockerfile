@@ -1,3 +1,13 @@
+# Build Frontend
+FROM node:20-slim AS frontend-builder
+WORKDIR /frontend
+RUN corepack enable pnpm
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY frontend/ ./
+RUN pnpm run build
+
+# Build Backend and serve both
 FROM python:3.10-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -19,6 +29,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
+
+# Copy frontend build output
+COPY --from=frontend-builder /frontend/dist /app/frontend/dist
 
 RUN chown -R chopsense:chopsense /app
 USER chopsense
