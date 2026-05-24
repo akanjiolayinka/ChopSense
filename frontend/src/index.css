@@ -1,51 +1,80 @@
+@import "leaflet/dist/leaflet.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html,
-  body,
-  #root {
-    height: 100%;
-    width: 100%;
-    background-color: #0B1B2B;
-    color: #ffffff;
-    margin: 0;
-    padding: 0;
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #0e1b2e;
+  color: #f7f3ea;
+  font-family: "Inter", "DM Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3
+      font-semibold text-navy transition-all duration-200 hover:brightness-105
+      hover:shadow-gold active:scale-[0.98];
   }
-  
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-blue-gray/40
+      px-6 py-3 font-semibold text-cream transition-all duration-200
+      hover:border-gold hover:text-gold active:scale-[0.98];
   }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-navy-line bg-navy-soft
+      px-4 py-2 text-sm text-blue-gray transition-all duration-200 hover:border-gold/60;
   }
-  ::-webkit-scrollbar-track {
-    background: #050D15;
+
+  .pill-active {
+    @apply border-gold bg-gold/15 text-gold;
   }
-  ::-webkit-scrollbar-thumb {
-    background: #2F5D44;
-    border-radius: 5px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #D4A24C;
+
+  .card-base {
+    @apply rounded-2xl border border-navy-line bg-navy-soft p-6 shadow-card;
   }
 }
 
-@layer utilities {
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+.leaflet-container {
+  background: #0e1b2e;
+  font-family: "Inter", sans-serif;
+}
+
+.chop-pin {
+  background: transparent;
+  border: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #22344f;
+  border-radius: 999px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
