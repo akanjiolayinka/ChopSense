@@ -1,32 +1,30 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ChefHat, X, Code, Mail } from 'lucide-react';
+import { Github } from "lucide-react";
+
+import { Logo } from "./Navbar.jsx";
 
 export default function Footer() {
   return (
-    <footer className="py-12 px-6 bg-navyDark border-t border-white/10">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-forest flex items-center justify-center text-navyDark">
-              <ChefHat size={20} strokeWidth={2.5} />
-            </div>
-            <span className="font-bold tracking-tight text-xl">ChopSense</span>
-          </div>
+    <footer className="border-t border-navy-line bg-navy py-12">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 text-center md:flex-row md:justify-between md:text-left">
+        <div>
+          <Logo />
+          <p className="mt-2 text-sm text-blue-gray">
+            Not a search engine. A friend who knows where to eat.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-6">
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-gold transition-colors">
-              <X size={20} />
-            </a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-gold transition-colors">
-              <Code size={20} />
-            </a>
-            <a href="mailto:hello@chopsense.com" className="text-white/60 hover:text-gold transition-colors">
-              <Mail size={20} />
-            </a>
-          </div>
-
-          <p className="text-white/40 text-sm">© 2024 ChopSense. All rights reserved.</p>
+        <div className="flex flex-col items-center gap-3 md:items-end">
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-blue-gray transition-colors hover:text-cream"
+          >
+            <Github size={16} /> GitHub
+          </a>
+          <p className="text-xs text-blue-gray/70">
+            Built for the DSN × BCT LLM Agent Challenge
+          </p>
         </div>
       </div>
     </footer>
